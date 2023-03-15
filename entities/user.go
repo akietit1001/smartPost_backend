@@ -6,7 +6,7 @@ import (
 )
 
 type User struct {
-	Id        string    `json:"id"`
+	Id        int       `json:"id"`
 	FirstName string    `json:"firstName"`
 	LastName  string    `json:"lastName"`
 	Password  string    `json:"password"`
@@ -16,6 +16,6 @@ type User struct {
 }
 
 func (user User) ToString() string {
-	return fmt.Sprintf("id: %s\nfirstName: %s\nlastName: %s\nPassword: %s\nemail: %s\ncreate_on:%s\nlast_login:%s\n",
+	return fmt.Sprintf("id: %d\nfirstName: %s\nlastName: %s\nPassword: %s\nemail: %s\ncreate_on:%s\nlast_login:%s\n",
 		user.Id, user.FirstName, user.LastName, user.Password, user.Email, user.CreateOn, user.LastLogin)
 }

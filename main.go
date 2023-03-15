@@ -1,25 +1,38 @@
 package main
 
 import (
+	echojwt "github.com/labstack/echo-jwt/v4"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"net/http"
-	"smartPOST/database"
-
 	"smartPOST/apis"
-
-	"github.com/gorilla/mux"
+	"smartPOST/controller"
+	"smartPOST/database"
+	"smartPOST/mdw"
 )
 
 func main() {
-	router := mux.NewRouter()
+	server := echo.New()
 	database.DBConnection()
-	router.HandleFunc("/api/v1/user/find", userApi.FindUser).Methods("GET")
-	router.HandleFunc("/api/v1/user/getall", userApi.GetAll).Methods("GET")
-	router.HandleFunc("/api/v1/user/create", userApi.CreateUser).Methods("POST")
-	router.HandleFunc("/api/v1/user/update", userApi.UpdateUser).Methods("PUT")
-	router.HandleFunc("/api/v1/user/delete", userApi.Delete).Methods("DELETE")
+	isLoggedIn := echojwt.JWT([]byte("mysecretkey"))
+	isAdmin := mdw.IsAdminMdw
+	server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
+	}))
+	server.GET("/", controller.Hello, isLoggedIn)
+	server.POST("/login", controller.Login, middleware.BasicAuth(mdw.Basic_Auth))
 
-	err := http.ListenAndServe(":8000", router)
-	if err != nil {
-		panic(err)
-	}
+	server.POST("/create", apis.CreateUser)
+
+	server.GET("/admin", controller.Hello, isLoggedIn, isAdmin)
+
+	groupUser := server.Group("/api/user", isLoggedIn)
+	groupUser.GET("/get/:id", apis.GetUser)
+	groupUser.GET("/getall", apis.GetAllUsers, isAdmin)
+	groupUser.PUT("/update/:id", apis.UpdateUser)
+	groupUser.DELETE("/delete/:id", apis.DeleteUser, isAdmin)
+	//database.DB.Find(entities.User{})
+
+	server.Logger.Fatal(server.Start(":8080"))
 }
