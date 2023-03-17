@@ -20,19 +20,23 @@ func main() {
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
 	}))
-	server.GET("/", controller.Hello, isLoggedIn)
+
+	//Login
 	server.POST("/login", controller.Login, middleware.BasicAuth(mdw.Basic_Auth))
 
-	server.POST("/create", apis.CreateUser)
+	//Home
+	server.GET("/", controller.Hello, isLoggedIn)
 
-	server.GET("/admin", controller.Hello, isLoggedIn, isAdmin)
-
+	//User
+	server.POST("/api/user/create", apis.CreateUser)
 	groupUser := server.Group("/api/user", isLoggedIn)
 	groupUser.GET("/get/:id", apis.GetUser)
-	groupUser.GET("/getall", apis.GetAllUsers, isAdmin)
-	groupUser.PUT("/update/:id", apis.UpdateUser)
+	groupUser.GET("/getall", apis.GetAllUsers)
+	groupUser.PUT("/update-name/:id", apis.UpdateNameUser)
+	groupUser.PUT("/update-password/:id", apis.UpdatePasswordUser)
+	groupUser.PUT("/update-email/:id", apis.UpdateEmailUser)
 	groupUser.DELETE("/delete/:id", apis.DeleteUser, isAdmin)
-	//database.DB.Find(entities.User{})
 
+	//Run port: 8080
 	server.Logger.Fatal(server.Start(":8080"))
 }
