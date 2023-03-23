@@ -9,12 +9,12 @@ type LoginRequest struct {
 
 type LoginResponse struct {
 	Id        int       `json:"id"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
+	FirstName string    `json:"firstName"`
+	LastName  string    `json:"lastName"`
 	Email     string    `json:"email"`
 	Password  string    `json:"password"`
-	CreateOn  time.Time `json:"create_on"`
-	LastLogin time.Time `json:"last_login"`
+	CreateOn  time.Time `json:"createOn"`
+	LastLogin time.Time `json:"lastLogin"`
 	Role      string    `json:"role"`
 	Token     string    `json:"token"`
 	Admin     bool      `json:"admin"`

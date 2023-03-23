@@ -1,19 +1,29 @@
 package main
 
 import (
-	echojwt "github.com/labstack/echo-jwt/v4"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"net/http"
 	"smartPOST/apis"
 	"smartPOST/controller"
 	"smartPOST/database"
 	"smartPOST/mdw"
+	"smartPOST/sendEmail"
+
+	echojwt "github.com/labstack/echo-jwt/v4"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
+	// Create server
 	server := echo.New()
+
+	// Connect database
 	database.DBConnection()
+
+	// Send email
+	sendEmail.SendEmailWithGmail()
+
+	// Middleware
 	isLoggedIn := echojwt.JWT([]byte("mysecretkey"))
 	isAdmin := mdw.IsAdminMdw
 	server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
