@@ -1,14 +1,15 @@
 package controller
 
 import (
-	"github.com/golang-jwt/jwt"
-	"github.com/labstack/echo/v4"
 	"log"
 	"net/http"
 	"smartPOST/apis"
 	"smartPOST/entities"
 	"smartPOST/models"
 	"time"
+
+	"github.com/golang-jwt/jwt"
+	"github.com/labstack/echo/v4"
 )
 
 func Login(c echo.Context) error {
@@ -24,11 +25,6 @@ func Login(c echo.Context) error {
 			user.LastName = x.LastName
 			user.Email = x.Email
 			user.Password = x.Password
-			if admin {
-				user.Role = "admin"
-			} else {
-				user.Role = "user"
-			}
 			user.CreateOn = x.CreateOn
 			user.LastLogin = x.LastLogin
 		}

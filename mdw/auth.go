@@ -1,8 +1,9 @@
 package mdw
 
 import (
-	"github.com/labstack/echo/v4"
 	"smartPOST/apis"
+
+	"github.com/labstack/echo/v4"
 )
 
 func Basic_Auth(email string, password string, c echo.Context) (bool, error) {
@@ -14,7 +15,11 @@ func Basic_Auth(email string, password string, c echo.Context) (bool, error) {
 		for _, x := range apis.ListUsers {
 			if email == x.Email && password == x.Password {
 				c.Set("email", email)
-				c.Set("admin", false)
+				if x.Role == "admin" {
+					c.Set("admin", true)
+				} else {
+					c.Set("admin", false)
+				}
 				return true, nil
 			}
 		}

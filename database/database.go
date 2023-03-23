@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"smartPOST/entities"
+	"smartPOST/utils"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -13,11 +14,17 @@ var DB *gorm.DB
 var err error
 
 func DBConnection() {
-	host := "localhost"
-	port := "5433"
-	dbName := "postgres"
-	dbUser := "postgres"
-	password := "12345"
+
+	config, err := utils.LoadConfig(".")
+	if err != nil {
+		log.Fatal("cannot load config:", err)
+	}
+
+	host := config.DbHost
+	port := config.DbPort
+	dbName := config.DbName
+	dbUser := config.DbUser
+	password := config.DbPassword
 	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
 		host,
 		port,

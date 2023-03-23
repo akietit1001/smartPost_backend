@@ -1,20 +1,22 @@
 package apis
 
 import (
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"smartPOST/database"
 	"smartPOST/entities"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/labstack/echo/v4"
 )
 
 var (
 	//ListUsers = map[int]*entities.User{}
 	ListUsers = make([]*entities.User, 0)
-	seq       = 1
-	lock      = sync.Mutex{}
+	// ListUsers = database.DB.Select("*").Find(&entities.User{})
+	seq  = 1
+	lock = sync.Mutex{}
 )
 
 func CreateUser(c echo.Context) error {
@@ -52,11 +54,11 @@ func UpdateNameUser(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
 	db := database.DB
-	for i := 1; i <= len(ListUsers); i++ {
-		if i == id {
-			ListUsers[id-1].FirstName = u.FirstName
-			ListUsers[id-1].LastName = u.LastName
-			db.Save(ListUsers[id-1])
+	for index, user := range ListUsers {
+		if user.Id == id {
+			ListUsers[index].FirstName = u.FirstName
+			ListUsers[index].LastName = u.LastName
+			db.Save(ListUsers[index])
 			break
 		}
 	}
@@ -72,11 +74,11 @@ func UpdatePasswordUser(c echo.Context) error {
 	}
 	id, _ := strconv.Atoi(c.Param("id"))
 	db := database.DB
-	for i := 1; i <= len(ListUsers); i++ {
-		if i == id {
-			if ListUsers[id-1].Password != u.Password {
-				ListUsers[id-1].Password = u.Password
-				db.Save(ListUsers[id-1])
+	for index, user := range ListUsers {
+		if user.Id == id {
+			if user.Password != u.Password {
+				user.Password = u.Password
+				db.Save(ListUsers[index])
 			} else {
 				return c.JSON(http.StatusBadRequest, "Password is existed")
 			}
@@ -96,10 +98,10 @@ func UpdateEmailUser(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
 	db := database.DB
-	for i := 1; i <= len(ListUsers); i++ {
-		if i == id {
-			ListUsers[id-1].Email = u.Email
-			db.Save(ListUsers[id-1])
+	for index, user := range ListUsers {
+		if user.Id == id {
+			user.Email = u.Email
+			db.Save(ListUsers[index])
 			break
 		}
 	}
@@ -111,17 +113,15 @@ func DeleteUser(c echo.Context) error {
 	defer lock.Unlock()
 	id, _ := strconv.Atoi(c.Param("id"))
 	//delete(ListUsers, id)
-	k := 1
 	db := database.DB
-	for i := 1; i <= len(ListUsers); i++ {
-		if i != id {
-			ListUsers[i-1] = ListUsers[k-1]
-			k++
-		} else {
-			k++
+	for index, user := range ListUsers {
+		if user.Id == id {
+			copy(ListUsers[index:], ListUsers[index+1:])
+			ListUsers[len(ListUsers)-1] = &entities.User{}
+			ListUsers = ListUsers[:len(ListUsers)-1]
 			db.Delete(ListUsers, id)
+			break
 		}
-		i++
 	}
 	return c.JSON(http.StatusOK, "Deleted successfully")
 }
